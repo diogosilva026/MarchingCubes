@@ -91,24 +91,24 @@ public class CaveMaker3D : MonoBehaviour
     {
         UnityEngine.Random.InitState(seed != 0 ? seed : (int)(DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond));
         int count=0;
-
+        
         for (int z = 0; z < depth; z++)
             for (int y = 0; y < height; y++)
                 for (int x = 0; x < width; x++)
                 {
-                    map[x, y, z] = UnityEngine.Random.value < fillPercentage;
-                    //if (x == 0 || x == width - 1 || y == 0 || y == height - 1 || z == 0 || z == depth - 1)
-                    //{
-                    //    map[x, y, z] = true;
-                    //}
-                    //else
-                    //{
-                    //    
-                    //}
-                    if (map[x, y, z] == true)
+                   if (x == 0 || x == width - 1 || y == 0 || y == height - 1 || z == 0 || z == depth - 1)
+                    {
+                        map[x, y, z] = true;
+                    }
+                    else
+                    {
+                        
+                        map[x, y, z] = UnityEngine.Random.value < fillPercentage;
+                    }
+                    /* if (map[x, y, z] == true)
                     {
                         count++;
-                    }
+                    } */
                 }
     }   
 
@@ -252,6 +252,7 @@ public class CaveMaker3D : MonoBehaviour
     }
     public void MakeMeshFromTable()
     {
+
         Mesh finalMesh= new();  
         finalMesh.vertices= totalVertices.ToArray();
         finalMesh.triangles= totalTris.ToArray();
@@ -261,10 +262,10 @@ public class CaveMaker3D : MonoBehaviour
     }
 
 
-   
 
-//___________________________________Tabelas para as combinações ____________________________________
-   
+
+
+#region Tabelas para as combinações
     public int[,] triangleTable = new int[,]
     {
         {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
@@ -526,8 +527,8 @@ public class CaveMaker3D : MonoBehaviour
     };
     
     
- //_________________________________________________________________________________________   
-    
+ #endregion
+#region código não utilizado
     //private void UpdateMesh()
    // {
    //     List<Vector3> vertices = new List<Vector3>();
@@ -595,5 +596,5 @@ public class CaveMaker3D : MonoBehaviour
         uvs.AddRange(cubeUVs);
     } */
 
-
+#endregion
 }
