@@ -6,6 +6,9 @@ using UnityEngine;
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class CaveMaker3D : MonoBehaviour
 {
+    List<Vector3> totalVertices = new List<Vector3>();
+    List<int> totalTris = new List<int>();
+    int indexTotalVertices = 0;
     public int width, height, depth;
     public static bool[,,] map;
     public int seed = 0;
@@ -22,6 +25,22 @@ public class CaveMaker3D : MonoBehaviour
         meshFilter = GetComponent<MeshFilter>();
         GenerateMap();
     }
+
+     [ContextMenu("Marching Cubes")]
+     public void MarchingCubes()
+     {
+        if (!meshFilter)
+            meshFilter = GetComponent<MeshFilter>();
+
+        map = new bool[width, height, depth];
+        GenerateNoise();
+        for (int i = 0; i < iterations; i++)
+           Iterate();
+
+        MakeCubesGo();
+        
+     }
+
 
     [ContextMenu("Generate New Map")]
     public void GenerateMap()
@@ -84,15 +103,13 @@ public class CaveMaker3D : MonoBehaviour
                     //}
                     //else
                     //{
-                    //    Debug.Log("dwd");
+                    //    
                     //}
                     if (map[x, y, z] == true)
                     {
-
                         count++;
                     }
                 }
-        Debug.Log(count);
     }   
 
     private void Iterate()
@@ -138,6 +155,22 @@ public class CaveMaker3D : MonoBehaviour
     // o que faz é um loop dos 8 cantos e a cada canto vai checkar se é true ou não
     // se for true, empurra um bit de valor 1 ( 1<< posição do bit) para a posição correpondente do i ciclo EX: x = 1<<2 é igual a 10 em binario
     // e depois com o |=(OR lógico) para fazer o valor que queremos total e que vai dar o valor int da combinação que queremos da tabela ex: targetbit = 100(binario) ->> targetBit |= x fica 110. TM* 
+    public void MakeCubesGo()
+    {
+        totalVertices.Clear();
+        totalTris.Clear();
+        indexTotalVertices = 0;
+        for (int z = 0; z < depth-1; ++z)
+            for (int y = 0; y < height-1; ++y)
+                for (int x = 0; x < width-1; ++x)
+                {
+                    Resolve(x,y,z);
+                    
+                }
+
+        MakeMeshFromTable();
+    }
+
     public int CheckTruePointsOnCube(int x, int y, int z)
     {
         bool[] cubeVertices = new bool[8];
@@ -158,25 +191,16 @@ public class CaveMaker3D : MonoBehaviour
             tableIndex |=1<<i;
         }
         } 
+
         return tableIndex;
     }
 
-    public void MakeCubesGo()
-    {
-        for (int z = 0; z < depth-1; ++z)
-            for (int y = 0; y < height-1; ++y)
-                for (int x = 0; x < width-1; ++x)
-                {
-                    Resolve(x,y,z);
-                }
-    }
 
     public void Resolve(int x, int y, int z)
     {
         int tableIndex = CheckTruePointsOnCube(x,y,z);
         if (tableIndex == 0 || tableIndex == 255)
-        return; 
-    
+        {return;} 
 
         Vector3[] vertices = new Vector3[8];
         vertices[0] = new Vector3(x,y,z);
@@ -204,22 +228,36 @@ public class CaveMaker3D : MonoBehaviour
         midEdgePoints[9] = vertices[1] + ( vertices[5] - vertices[1]);
         midEdgePoints[10] = vertices[2] + ( vertices[6] - vertices[2]);
         midEdgePoints[11] = vertices[3] + ( vertices[7] - vertices[3]);
-        
-        int EdgeIndex = 0;
+
         for (int i=0; i < 16; i++)
         {   
-            for(int j = 0; j < 4; ++j)
-            triangleTable[tableIndex, i]
+            int currentIndex = triangleTable[tableIndex, i];
+            if ( currentIndex == -1)
+            {
+                break;
+            } else {
+                int index = indexTotalVertices + currentIndex;
+                totalTris.Add(index);
+            }
         }
+
+        for(int j = 0; j < 12; ++j)
+        {   
+            totalVertices.Add(midEdgePoints[j]);
+        }
+        indexTotalVertices+=12;
+        
+        
         
     }
-    public void MakeMeshFromTable(int tableIndex)
+    public void MakeMeshFromTable()
     {
-        
-
-
-        
-
+        Mesh finalMesh= new();  
+        finalMesh.vertices= totalVertices.ToArray();
+        finalMesh.triangles= totalTris.ToArray();
+        finalMesh.RecalculateBounds();
+        finalMesh.RecalculateNormals();
+        meshFilter.sharedMesh = finalMesh;
     }
 
 
