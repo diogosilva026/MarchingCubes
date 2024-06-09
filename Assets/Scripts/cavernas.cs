@@ -39,7 +39,7 @@ public class CaveMaker3D : MonoBehaviour
             for (int y = 0; y < height; y++)
                 for (int x = 0; x < width; x++)
                 {
-                    if (map[x, y, z] == true) 
+                    if (map[x, y, z] == true)
                     {
                         GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
                         cube.gameObject.tag = "cube";
