@@ -66,21 +66,17 @@ public class CaveMaker3D : MonoBehaviour
                         cube.gameObject.GetComponent<MeshRenderer>().material = gameObject.GetComponent<MeshRenderer>().material;
                     }
                 }
-
     }
 
     [ContextMenu("Delete All Cubes")]
 
     public void DeleteAllCubes()
     {
-       
             var goArray = GameObject.FindGameObjectsWithTag("cube");
-        Debug.Log(goArray);
             foreach (var item in goArray)
             {
                 DestroyImmediate(item);
             }
-       
     }
 
 
@@ -90,7 +86,7 @@ public class CaveMaker3D : MonoBehaviour
     private void GenerateNoise()
     {
         UnityEngine.Random.InitState(seed != 0 ? seed : (int)(DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond));
-        int count=0;
+        //int count = 0;
         
         for (int z = 0; z < depth; z++)
             for (int y = 0; y < height; y++)
@@ -165,7 +161,6 @@ public class CaveMaker3D : MonoBehaviour
                 for (int x = 0; x < width-1; ++x)
                 {
                     Resolve(x,y,z);
-                    
                 }
 
         MakeMeshFromTable();
@@ -211,23 +206,24 @@ public class CaveMaker3D : MonoBehaviour
         vertices[5] = new Vector3(x+1,y+1,z);
         vertices[6] = new Vector3(x+1,y+1,z+1);
         vertices[7] = new Vector3(x,y+1,z+1);
-        
+
+
         //a tabela está feita para os pontos no meio das edges e não os vertices!
 
-        // para calcular o meio entre os dois vertices  v1 + (v2-v1) 
+        // para calcular o meio entre os dois vertices  v1 + ((v2-v1) * 0.5) 
         Vector3[] midEdgePoints = new Vector3[12];
-        midEdgePoints[0] = vertices[0] + ( vertices[1] - vertices[0]);
-        midEdgePoints[1] = vertices[1] + ( vertices[2] - vertices[1]);
-        midEdgePoints[2] = vertices[3] + ( vertices[2] - vertices[3]);
-        midEdgePoints[3] = vertices[0] + ( vertices[3] - vertices[0]);
-        midEdgePoints[4] = vertices[4] + ( vertices[5] - vertices[4]);
-        midEdgePoints[5] = vertices[5] + ( vertices[6] - vertices[5]);
-        midEdgePoints[6] = vertices[7] + ( vertices[6] - vertices[7]);
-        midEdgePoints[7] = vertices[4] + ( vertices[7] - vertices[4]);
-        midEdgePoints[8] = vertices[0] + ( vertices[4] - vertices[0]);
-        midEdgePoints[9] = vertices[1] + ( vertices[5] - vertices[1]);
-        midEdgePoints[10] = vertices[2] + ( vertices[6] - vertices[2]);
-        midEdgePoints[11] = vertices[3] + ( vertices[7] - vertices[3]);
+        midEdgePoints[0] = vertices[0] + (vertices[1] - vertices[0]) * 0.5f;
+        midEdgePoints[1] = vertices[1] + (vertices[2] - vertices[1]) * 0.5f;
+        midEdgePoints[2] = vertices[3] + (vertices[2] - vertices[3]) * 0.5f;
+        midEdgePoints[3] = vertices[0] + (vertices[3] - vertices[0]) * 0.5f;
+        midEdgePoints[4] = vertices[4] + (vertices[5] - vertices[4]) * 0.5f;
+        midEdgePoints[5] = vertices[5] + (vertices[6] - vertices[5]) * 0.5f;
+        midEdgePoints[6] = vertices[7] + (vertices[6] - vertices[7]) * 0.5f;
+        midEdgePoints[7] = vertices[4] + (vertices[7] - vertices[4]) * 0.5f;
+        midEdgePoints[8] = vertices[0] + (vertices[4] - vertices[0]) * 0.5f;
+        midEdgePoints[9] = vertices[1] + (vertices[5] - vertices[1]) * 0.5f;
+        midEdgePoints[10] = vertices[2] + (vertices[6] - vertices[2]) * 0.5f;
+        midEdgePoints[11] = vertices[3] + (vertices[7] - vertices[3]) * 0.5f;
 
         for (int i=0; i < 16; i++)
         {   
@@ -247,21 +243,19 @@ public class CaveMaker3D : MonoBehaviour
         }
         indexTotalVertices+=12;
         
-        
-        
     }
+
     public void MakeMeshFromTable()
     {
 
-        Mesh finalMesh= new();  
+        Mesh finalMesh= new();
+        finalMesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
         finalMesh.vertices= totalVertices.ToArray();
         finalMesh.triangles= totalTris.ToArray();
         finalMesh.RecalculateBounds();
         finalMesh.RecalculateNormals();
         meshFilter.sharedMesh = finalMesh;
     }
-
-
 
 
 
@@ -528,6 +522,7 @@ public class CaveMaker3D : MonoBehaviour
     
     
  #endregion
+
 #region código não utilizado
     //private void UpdateMesh()
    // {
